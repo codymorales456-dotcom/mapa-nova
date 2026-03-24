@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Networks - Mapa Táctico - Flotas Desplegadas</title>
+    <style>
+        /* 1. FONDO Y ESTÉTICA HUD */
+        body { 
+            background-color: #000; 
+            color: #00f2ff; 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; 
+            overflow: hidden; 
+            user-select: none;
+            /* Imagen de fondo Nova Networks con degradado negro */
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('fondo.png');
+            background-size: cover; 
+            background-position: center;
+        }
+
+        #contenedor { 
+            width: 100vw; 
+            height: 100vh; 
+            position: relative; 
+            z-index: 10; 
+        }
+
+        /* 2. ANIMACIONES HOLOGRÁFICAS */
+        /* Flotación suave para planetas */
+        @keyframes flotar { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-10px); } 
+        }
+
+        /* Flotación y balanceo para naves */
+        @keyframes flotarNave {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        /* Parpadeo sutil de interferencia (Efecto Holograma) */
+        @keyframes parpadeoHolograma {
+            0%, 100% { opacity: 1; }
+            45% { opacity: 0.98; }
+            50% { opacity: 0.92; } /* Pequeño "glitch" */
+            55% { opacity: 0.98; }
+        }
+
+        /* 3. ESTILO DE LOS PLANETAS */
+        .planeta {
+            width: 22px; 
+            height: 22px; 
+            border-radius: 50%;
+            position: absolute; 
+            cursor: pointer; 
+            z-index: 100; /* Debajo de las naves */
+            display: flex; align-items: center; justify-content: center;
+            
+            /* Animaciones base */
+            animation: flotar 4s ease-in-out infinite, 
+                       parpadeoHolograma 0.15s linear infinite;
+        }
+
+        /* Colores por facción con brillos tácticos */
+        .republica { color: #55aaff; background-color: #55aaff; box-shadow: 0 0 20px currentColor; }
+        .cis { color: #ff4444; background-color: #ff4444; box-shadow: 0 0 20px currentColor; }
+        .neutral { color: #aaaaaa; background-color: #aaaaaa; box-shadow: 0 0 20px currentColor; }
+
+        .planeta:hover { 
+            transform: scale(1.6) translateY(-5px) !important; 
+            background-color: white !important; 
+            box-shadow: 0 0 30px white !important;
+            animation-play-state: paused; 
+        }
+
+        /* 4. ESTILO DE LAS NAVES */
+        .nave {
+            position: absolute;
+            z-index: 150; /* Siempre por encima del planeta */
+            pointer-events: none; /* No interrumpen el clic en el planeta */
+            
+            /* Ajuste de posición: centrado sobre el planeta y arriba */
+            top: -50px; /* Sube la nave */
+            left: 50%; /* Centra la nave horizontalmente */
+            transform: translateX(-50%); /* Ajuste final del centrado */
+            
+            /* Animación holográfica de nave */
+            animation: flotarNave 6s ease-in-out infinite,
+                       parpadeoHolograma 0.1s linear infinite;
+        }
+
+        /* Estilos específicos para cada tipo de nave */
+        .crucero-republica {
+            width: 70px; /* Tamaño Acclamator */
+            height: auto;
+            border: 2px solid #55aaff;
+            box-shadow: 0 0 20px rgba(85, 170, 255, 0.5);
+            /* Animación sutil de brillo de motor */
+            border-bottom-width: 4px;
+        }
+
+        .crucero-cis {
+            width: 60px; /* Tamaño Munificent */
+            height: auto;
+            border: 2px solid #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+        }
+
+        /* 5. ETIQUETAS Y UI */
+        .etiqueta { 
+            position: absolute; 
+            top: 25px; 
+            font-size: 11px; 
+            width: 100px; 
+            text-align: center; 
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000; 
+            letter-spacing: 1px;
+            /* La etiqueta también parpadea */
+            animation: parpadeoHolograma 0.15s linear infinite;
+        }
+
+        #panel {
+            position: fixed; 
+            top: 20px; 
+            left: 20px; 
+            width: 270px;
+            border: 1px solid #00f2ff; 
+            background: rgba(0, 10, 20, 0.9);
+            padding: 15px; 
+            z-index: 200;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            /* Parpadeo de monitor antiguo */
+            animation: parpadeoHolograma 0.1s linear infinite;
+        }
+
+        /* 6. LIENZO Y EFECTOS HUD */
+        canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            z-index: 5; 
+            opacity: 0.4; 
+            pointer-events: none; 
+        }
+
+        #escaneo {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 4px; 
+            z-index: 150; 
+            pointer-events: none; 
+            opacity: 0.7;
+        }
+
+        #barra-radar {
+            position: absolute; 
+            width: 100%; 
+            height: 2px; 
+            background: rgba(0, 242, 255, 0.5);
+            box-shadow: 0 0 10px #00f2ff; 
+            z-index: 160; 
+            animation: radar 8s linear infinite;
+        }
+        @keyframes radar { 0% { top: 0; } 100% { top: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div id="escaneo"></div>
+
+    <div id="panel">
+        <h3 style="margin:0 0 10px 0; border-bottom: 1px solid #00f2ff; padding-bottom: 5px; font-size: 16px;">NOVA NETWORKS - COMMAND</h3>
+        <div id="info" style="font-size: 12px;">SISTEMAS OPERATIVOS.<br>Despliegue de flota verificado.</div>
+    </div>
+
+    <div id="contenedor">
+        <div id="barra-radar"></div>
+        <div id="escaneo"></div>
+        <canvas id="lienzos"></canvas>
+    </div>
+
+    <script>
+        // BASE DE DATOS DE PLANETAS - COORDINADAS EN %
+        // c: Conexiones tácticas (Rutas hiperespaciales)
+        const planetasData = [
+            { id: 0, n: "CORUSCANT", x: 45, y: 25, f: "republica", c: [1, 2, 8] },
+            { id: 1, n: "KAMINO", x: 65, y: 40, f: "republica", c: [3, 4] },
+            { id: 2, n: "NABOO", x: 35, y: 60, f: "republica", c: [6, 11] },
+            { id: 3, n: "MUSTAFAR", x: 80, y: 75, f: "cis", c: [] },
+            { id: 4, n: "GEONOSIS", x: 75, y: 30, f: "cis", c: [5, 9] },
+            { id: 5, n: "CATO NEIMOIDIA", x: 60, y: 15, f: "cis", c: [] },
+            { id: 6, n: "TATOOINE", x: 18, y: 40, f: "neutral", c: [] },
+            { id: 7, n: "DAGOBAH", x: 25, y: 85, f: "neutral", c: [] },
+            { id: 8, n: "RYLOTH", x: 50, y: 80, f: "republica", c: [] },
+            { id: 9, n: "FELUCIA", x: 85, y: 15, f: "cis", c: [] },
+            { id: 10, n: "DANTOOINE", x: 20, y: 15, f: "neutral", c: [12] },
+            { id: 11, n: "HOTH", x: 10, y: 65, f: "neutral", c: [] },
+            { id: 12, n: "ANAXES", x: 30, y: 12, f: "republica", c: [] }
+        ];
+
+        const cont = document.getElementById('contenedor');
+        const canva = document.getElementById('lienzos');
+        const ctx = canva.getContext('2d');
+
+        // Sonido de clic Sci-Fi robusto
+        function sonarBeep() {
+            try {
+                const a = new (window.AudioContext || window.webkitAudioContext)();
+                const o = a.createOscillator();
+                const g = a.createGain();
+                o.type = 'triangle';
+                o.frequency.setValueAtTime(440, a.currentTime);
+                o.frequency.exponentialRampToValueAtTime(880, a.currentTime + 0.1);
+                g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.1);
+                o.connect(g); g.connect(a.destination);
+                o.start(); o.stop(a.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        // Función para dibujar las líneas (rutas tácticas)
+        function dibujarRutas() {
+            canva.width = window.innerWidth;
+            canva.height = window.innerHeight;
+            ctx.strokeStyle = "rgba(0, 242, 255, 0.4)";
+            ctx.setLineDash([5, 5]); // Líneas punteadas tácticas
+            ctx.lineWidth = 1;
+
+            planetasData.forEach(p => {
+                const startX = (p.x * window.innerWidth) / 100;
+                const startY = (p.y * window.innerHeight) / 100;
+
+                p.c.forEach(idDestino => {
+                    const dest = planetasData.find(d => d.id === idDestino);
+                    if (dest) {
+                        const endX = (dest.x * window.innerWidth) / 100;
+                        const endY = (dest.y * window.innerHeight) / 100;
+                        ctx.beginPath();
+                        ctx.moveTo(startX + 11, startY + 11); // +11 para ir al centro del círculo
+                        ctx.lineTo(endX + 11, endY + 11);
+                        ctx.stroke();
+                    }
+                });
+            });
+        }
+
+        // Crear los planetas y DESPLEGAR NAVES dinámicamente
+        planetasData.forEach((p, i) => {
+            // A. Crear el planeta
+            const divPlaneta = document.createElement('div');
+            divPlaneta.className = 'planeta ' + p.f;
+            divPlaneta.style.left = p.x + "%";
+            divPlaneta.style.top = p.y + "%";
+            
+            // Variar la velocidad de flotación para realismo
+            divPlaneta.style.animationDuration = (3.5 + (i % 3)) + "s";
+
+            // B. Crear la etiqueta
+            divPlaneta.innerHTML = '<div class="etiqueta">' + p.n + '</div>';
+            
+            // C. DESPLEGAR NAVE (Si corresponde)
+            if (p.f === 'republica') {
+                const imgNave = document.createElement('img');
+                imgNave.src = 'acclamator.jpg'; // <-- Asegúrate de tener este archivo
+                imgNave.className = 'nave crucero-republica';
+                divPlaneta.appendChild(imgNave); // La nave flota sobre el planeta
+            } else if (p.f === 'cis') {
+                const imgNave = document.createElement('img');
+                imgNave.src = 'munificent.jpg'; // <-- Asegúrate de tener este archivo
+                imgNave.className = 'nave crucero-cis';
+                divPlaneta.appendChild(imgNave); // La nave flota sobre el planeta
+            }
+
+            // D. Lógica de clic táctico
+            divPlaneta.onclick = () => {
+                sonarBeep();
+                let status = (p.f === 'cis') ? "¡ALERTA TÁCTICA! FLOTA ENEMIGA DETECTADA." : "SECTOR BAJO CONTROL.";
+                if(p.f === 'neutral') status = "ZONA SIN JURISDICCIÓN.";
+                
+                document.getElementById('info').innerHTML = `
+                    SISTEMA: <span style="color:white">${p.n}</span><br>
+                    CONTROL: <span style="text-transform:uppercase">${p.f}</span><br>
+                    ${status}
+                `;
+            };
+
+            cont.appendChild(divPlaneta);
+        });
+
+        // Dibujar líneas solo cuando la pantalla esté lista
+        window.addEventListener('load', dibujarRutas);
+        window.addEventListener('resize', dibujarRutas); // Redibujar si cambia el tamaño
+    </script>
+</body>
+</html>
