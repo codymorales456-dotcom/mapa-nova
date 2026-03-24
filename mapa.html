@@ -2,41 +2,79 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <title>SISTEMA DE MANDO GALÁCTICO - NOVA NETWORKS</title>
     <style>
-        body { margin: 0; padding: 0; background: #000; color: #00d2ff; font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; }
-        #espacio { width: 100vw; height: 100vh; background: radial-gradient(circle at center, #1B2735 0%, #000 100%); position: relative; z-index: 1; }
+        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Segoe UI', 'Arial', sans-serif; overflow: hidden; user-select: none; }
+        
+        /* CONTENEDOR PRINCIPAL CON TU FONDO DE GALAXIA */
+        #espacio {
+            width: 100vw; height: 100vh;
+            /* Cargar TU imagen de fondo */
+            background-image: url('fondo.png');
+            /* Ajustar la imagen para que cubra toda la pantalla sin estirarse raro */
+            background-size: cover;
+            /* Centrar la galaxia */
+            background-position: center;
+            /* No repetir si la pantalla es muy grande */
+            background-repeat: no-repeat;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* CAPA OSCURA OPCIONAL (Por si el fondo es muy brillante y tapa las letras) */
+        #espacio::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.25); /* Capa negra al 25% de opacidad */
+            z-index: -1;
+        }
         
         /* LIENZO PARA LAS RUTAS */
         #rutas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
         /* ESTILO BASE PLANETAS (Con Foto) */
         .planeta {
-            position: absolute; width: 60px; height: 60px; border-radius: 50%; cursor: pointer;
+            position: absolute; width: 62px; height: 62px; border-radius: 50%; cursor: pointer;
             transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
-            border: 2px solid rgba(255,255,255,0.2); z-index: 2;
-            background-size: cover; /* La foto cubre todo el círculo */
+            border: 2px solid rgba(255,255,255,0.25); z-index: 2;
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
-        .planeta:hover { transform: scale(1.25); filter: brightness(1.3); z-index: 10; }
+        /* Pequeña sombra interna para dar efecto 3D */
+        .planeta::after {
+            content: "";
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            box-shadow: inset 5px 5px 15px rgba(0,0,0,0.6);
+        }
+        .planeta:hover { transform: scale(1.25); filter: brightness(1.3); z-index: 10; border-color: white; }
 
         /* BORDES DE FACCIÓN (Rodeando la Foto) */
-        .republica { border-color: #00a2ff; box-shadow: 0 0 15px rgba(0, 162, 255, 0.4); }
-        .cis { border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.4); }
+        .republica { border-color: #00a2ff; box-shadow: 0 0 15px rgba(0, 162, 255, 0.5); }
+        .cis { border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.5); }
 
-        .etiqueta { position: absolute; bottom: -20px; font-size: 9px; font-weight: bold; color: white; text-shadow: 1px 1px 3px black; text-transform: uppercase; white-space: nowrap; }
+        .etiqueta { position: absolute; bottom: -20px; font-size: 9px; font-weight: bold; color: white; text-shadow: 1px 1px 4px black; text-transform: uppercase; white-space: nowrap; z-index: 3;}
         .icono-bandera { display: none; position: absolute; top: -35px; font-size: 25px; z-index: 10; filter: drop-shadow(0 0 5px red); }
 
         /* ESTADOS TÁCTICOS (Brillo sobre la Foto) */
         .ataque { box-shadow: 0 0 40px #ff0000 !important; border-color: #ff0000 !important; }
         .defensa { box-shadow: 0 0 40px #00ff00 !important; border-color: #00ff00 !important; }
         
+        /* MENÚ */
         #menu-tactico {
             display: none; position: absolute; background: rgba(0, 10, 30, 0.95); border: 1px solid #00d2ff;
-            padding: 10px; width: 170px; border-radius: 5px; z-index: 9999; box-shadow: 0 0 20px black;
+            padding: 10px; width: 175px; border-radius: 5px; z-index: 9999; box-shadow: 0 0 20px black;
+            backdrop-filter: blur(5px);
         }
-        .btn { display: block; width: 100%; padding: 8px; margin: 4px 0; cursor: pointer; font-size: 10px; font-weight: bold; border: 1px solid #00d2ff; background: transparent; color: #00d2ff; }
+        #menu-tactico h3 { text-align:center; margin:5px 0 10px 0; font-size:13px; color: #fff; border-bottom: 1px solid rgba(0, 210, 255, 0.3); padding-bottom: 5px;}
+        .btn { display: block; width: 100%; padding: 8px; margin: 4px 0; cursor: pointer; font-size: 10px; font-weight: bold; border: 1px solid #00d2ff; background: transparent; color: #00d2ff; text-transform: uppercase; transition: 0.2s;}
         .btn:hover { background: #00d2ff; color: black; }
+        .btn-atacar:hover { background: #ff3333; border-color: #ff3333; color: white; }
+        .btn-defender:hover { background: #33ff33; border-color: #33ff33; color: black; }
     </style>
 </head>
 <body onclick="cerrarMenu()">
@@ -77,11 +115,11 @@
     </div>
 
     <div id="menu-tactico" onclick="event.stopPropagation()">
-        <h3 id="txt-nombre" style="text-align:center; margin:5px; font-size:14px;">SECTOR</h3>
-        <button class="btn" onclick="ejecutar('C')">🚩 OCUPAR</button>
-        <button class="btn" onclick="ejecutar('A')" style="color:#ff3333;">⚔️ ATACAR</button>
-        <button class="btn" onclick="ejecutar('D')" style="color:#33ff33;">🛡️ DEFENDER</button>
-        <button class="btn" onclick="ejecutar('N')" style="font-size:8px; opacity:0.5;">LIMPIAR</button>
+        <h3 id="txt-nombre">SECTOR TÁCTICO</h3>
+        <button class="btn" onclick="ejecutar('C')">🚩 OCUPAR SECTOR</button>
+        <button class="btn btn-atacar" onclick="ejecutar('A')">⚔️ INICIAR ASALTO</button>
+        <button class="btn btn-defender" onclick="ejecutar('D')">🛡️ REFORZAR POSICIÓN</button>
+        <button class="btn" onclick="ejecutar('N')" style="font-size:8px; opacity:0.5; border-color: rgba(255,255,255,0.3); color: #fff;">[ BORRAR ÓRDENES ]</button>
     </div>
 </div>
 
@@ -95,8 +133,15 @@
         idActual = id;
         titulo.innerText = nombre.toUpperCase();
         menu.style.display = 'block';
-        menu.style.left = e.clientX + "px";
-        menu.style.top = e.clientY + "px";
+        
+        // Posicionamiento inteligente del menú para que no se corte
+        let x = e.clientX + 15;
+        let y = e.clientY + 15;
+        if(x + 185 > window.innerWidth) x = e.clientX - 190;
+        if(y + 160 > window.innerHeight) y = window.innerHeight - 165;
+        
+        menu.style.left = x + "px";
+        menu.style.top = y + "px";
     }
 
     function ejecutar(tipo) {
@@ -117,15 +162,16 @@
 
     function cerrarMenu() { menu.style.display = 'none'; }
 
-    // --- DIBUJAR RUTAS (Mismo código de antes) ---
+    // --- DIBUJAR RUTAS HIPERESPACIALES ---
     function dibujarRutas() {
         const canvas = document.getElementById('rutas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        ctx.strokeStyle = "rgba(0, 210, 255, 0.15)";
+        // Cyan tenue (0.18 opacidad) para que resalte sobre 'fondo.png'
+        ctx.strokeStyle = "rgba(0, 210, 255, 0.18)";
         ctx.lineWidth = 1;
-        ctx.setLineDash([5, 15]);
+        ctx.setLineDash([8, 12]); // Estilo radar
         const conexiones = [
             ['p1','p4'], ['p1','p3'], ['p1','p5'], ['p1','p6'], ['p1','p8'],
             ['p3','p2'], ['p2','p9'], ['p6','p7'], ['p7','p10'], ['p5','p4']
