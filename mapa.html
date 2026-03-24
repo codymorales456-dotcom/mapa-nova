@@ -1,19 +1,52 @@
-const baseURL = "https://codymorales456-dotcom.github.io/mapa-nova/";
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            background-color: #000; color: #00f2ff; 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; overflow: hidden;
+            /* USAREMOS LA URL DIRECTA DE TU GITHUB PARA EL FONDO */
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://codymorales456-dotcom.github.io/mapa-nova/fondo.png');
+            background-size: cover; background-position: center;
+        }
+        #contenedor { width: 100vw; height: 100vh; position: relative; z-index: 10; }
+        .planeta {
+            width: 22px; height: 22px; border-radius: 50%;
+            position: absolute; cursor: pointer; z-index: 100;
+            box-shadow: 0 0 15px currentColor;
+            animation: flotar 4s ease-in-out infinite;
+        }
+        @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .republica { color: #55aaff; background-color: #55aaff; }
+        .cis { color: #ff4444; background-color: #ff4444; }
+        .neutral { color: #aaaaaa; background-color: #aaaaaa; }
+        .etiqueta { position: absolute; top: 25px; font-size: 10px; width: 100px; text-align: center; left: -40px; text-shadow: 2px 2px 2px #000; font-weight: bold; }
+        #panel { position: fixed; top: 20px; left: 20px; width: 260px; border: 1px solid #00f2ff; background: rgba(0, 10, 20, 0.9); padding: 15px; z-index: 200; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 5; opacity: 0.4; pointer-events: none; }
+        /* ESTILO NAVES */
+        .nave { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); width: 60px; height: auto; z-index: 150; border: 1px solid rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div id="panel">
+        <h3 style="margin:0; border-bottom: 1px solid #00f2ff;">NOVA NETWORKS</h3>
+        <p id="info" style="font-size: 12px; margin-top: 10px;">SISTEMAS OPERATIVOS.<br>Chromium activo.</p>
+    </div>
+    <div id="contenedor"><canvas id="lienzos"></canvas></div>
+    <script>
+        const baseURL = "https://codymorales456-dotcom.github.io/mapa-nova/";
         const planetasData = [
             { id: 0, n: "CORUSCANT", x: 45, y: 30, f: "republica", c: [1, 2, 10] },
             { id: 1, n: "KAMINO", x: 65, y: 45, f: "republica", c: [3, 4] },
-            { id: 2, n: "NABOO", x: 35, y: 65, f: "republica", c: [6, 11] },
-            { id: 3, n: "MUSTAFAR", x: 85, y: 75, f: "cis", c: [] },
-            { id: 4, n: "GEONOSIS", x: 80, y: 35, f: "cis", c: [5, 9] },
+            { id: 2, n: "NABOO", x: 35, y: 65, f: "republica", c: [6] },
+            { id: 3, n: "MUSTAFAR", x: 80, y: 75, f: "cis", c: [] },
+            { id: 4, n: "GEONOSIS", x: 75, y: 35, f: "cis", c: [5] },
             { id: 5, n: "CATO NEIMOIDIA", x: 60, y: 15, f: "cis", c: [] },
-            { id: 6, n: "TATOOINE", x: 15, y: 45, f: "neutral", c: [] },
-            { id: 7, n: "DAGOBAH", x: 25, y: 85, f: "neutral", c: [] },
-            { id: 8, n: "RYLOTH", x: 50, y: 80, f: "republica", c: [] },
-            { id: 9, n: "FELUCIA", x: 85, y: 15, f: "cis", c: [] },
+            { id: 6, n: "TATOOINE", x: 18, y: 45, f: "neutral", c: [] },
             { id: 10, n: "DANTOOINE", x: 20, y: 15, f: "neutral", c: [12] },
-            { id: 11, n: "HOTH", x: 10, y: 65, f: "neutral", c: [] },
-            { id: 12, n: "ANAXES", x: 30, y: 12, f: "republica", c: [] }
+            { id: 12, n: "ANAXES", x: 32, y: 12, f: "republica", c: [] }
         ];
 
         const cont = document.getElementById('contenedor');
@@ -24,15 +57,12 @@ const baseURL = "https://codymorales456-dotcom.github.io/mapa-nova/";
             cv.width = window.innerWidth; cv.height = window.innerHeight;
             cx.strokeStyle = "#00f2ff"; cx.setLineDash([5, 5]);
             planetasData.forEach(p => {
-                const startX = (p.x * window.innerWidth) / 100;
-                const startY = (p.y * window.innerHeight) / 100;
-                p.c.forEach(idDestino => {
-                    const dest = planetasData.find(d => d.id === idDestino);
-                    if (dest) {
-                        const endX = (dest.x * window.innerWidth) / 100;
-                        const endY = (dest.y * window.innerHeight) / 100;
-                        cx.beginPath(); cx.moveTo(startX + 10, startY + 10);
-                        cx.lineTo(endX + 10, endY + 10); cx.stroke();
+                const sX = (p.x * window.innerWidth) / 100; const sY = (p.y * window.innerHeight) / 100;
+                p.c.forEach(idD => {
+                    const d = planetasData.find(item => item.id === idD);
+                    if (d) {
+                        const eX = (d.x * window.innerWidth) / 100; const eY = (d.y * window.innerHeight) / 100;
+                        cx.beginPath(); cx.moveTo(sX + 11, sY + 11); cx.lineTo(eX + 11, eY + 11); cx.stroke();
                     }
                 });
             });
@@ -44,24 +74,27 @@ const baseURL = "https://codymorales456-dotcom.github.io/mapa-nova/";
             div.style.left = p.x + "%"; div.style.top = p.y + "%";
             div.innerHTML = '<div class="etiqueta">' + p.n + '</div>';
             
-            // DESPLIEGUE DE NAVES CON URL COMPLETA
+            // IMÁGENES CON URL COMPLETA
             if (p.f === 'republica') {
                 const img = document.createElement('img');
-                img.src = baseURL + 'acclamator.jpg'; // Corregido el nombre a acclamator
-                img.className = 'nave crucero-republica';
+                img.src = baseURL + 'acclamator.jpg';
+                img.className = 'nave';
                 div.appendChild(img);
             } else if (p.f === 'cis') {
                 const img = document.createElement('img');
                 img.src = baseURL + 'munificent.jpg';
-                img.className = 'nave crucero-cis';
+                img.className = 'nave';
                 div.appendChild(img);
             }
 
             div.onclick = () => {
-                document.getElementById('info').innerHTML = "SISTEMA: " + p.n + "<br>AFILIACIÓN: " + p.f.toUpperCase();
+                document.getElementById('info').innerHTML = "SISTEMA: " + p.n + "<br>ESTADO: OPERATIVO";
             };
             cont.appendChild(div);
         });
 
         window.onload = dibujarRutas;
         window.onresize = dibujarRutas;
+    </script>
+</body>
+</html>
