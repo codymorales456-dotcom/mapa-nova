@@ -3,117 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { margin: 0; padding: 0; background: #000; color: #00d2ff; font-family: 'Arial', sans-serif; overflow: hidden; user-select: none; }
-        #espacio { width: 100vw; height: 100vh; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); position: relative; }
+        body { margin: 0; padding: 0; background: #000; color: #00d2ff; font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; }
+        #espacio { width: 100vw; height: 100vh; background: radial-gradient(circle at center, #1B2735 0%, #000 100%); position: relative; }
 
-        /* ESTILO DE LOS PLANETAS */
+        /* ESTILO BASE PLANETAS */
         .planeta {
-            position: absolute; width: 80px; height: 80px; border-radius: 50%; cursor: pointer;
-            transition: all 0.3s ease; border: 3px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
+            position: absolute; width: 65px; height: 65px; border-radius: 50%; cursor: pointer;
+            transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(255,255,255,0.2);
         }
+        .planeta:hover { transform: scale(1.2); z-index: 10; filter: brightness(1.3); }
 
-        .etiqueta { position: absolute; bottom: -25px; font-size: 11px; font-weight: bold; color: white; text-shadow: 2px 2px 2px black; letter-spacing: 1px; }
+        /* COLORES DE FACCIÓN */
+        .republica { border-color: #00a2ff; box-shadow: 0 0 15px rgba(0, 162, 255, 0.5); }
+        .cis { border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.5); }
 
-        /* ICONO DE BANDERA */
-        .icono-bandera { display: none; position: absolute; top: -35px; font-size: 30px; z-index: 10; filter: drop-shadow(0 0 5px red); }
+        .etiqueta { position: absolute; bottom: -22px; font-size: 10px; font-weight: bold; color: white; text-shadow: 1px 1px 3px black; text-transform: uppercase; white-space: nowrap; }
+        .icono-bandera { display: none; position: absolute; top: -35px; font-size: 25px; z-index: 10; }
 
-        /* ESTADOS VISUALES */
-        .rojo { box-shadow: 0 0 50px #ff0000; border-color: #ff0000 !important; background: rgba(255,0,0,0.2) !important; }
-        .verde { box-shadow: 0 0 50px #00ff00; border-color: #00ff00 !important; background: rgba(0,255,0,0.2) !important; }
-        
-        @keyframes pulso {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
+        /* ESTADOS TÁCTICOS (SINCRONIZADOS) */
+        .ataque { box-shadow: 0 0 40px #ff0000 !important; border-color: #ff0000 !important; background: rgba(255,0,0,0.4) !important; }
+        .defensa { box-shadow: 0 0 40px #00ff00 !important; border-color: #00ff00 !important; background: rgba(0,255,0,0.4) !important; }
         .animar { animation: pulso 0.4s ease-out; }
+        @keyframes pulso { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
 
-        /* MENÚ TÁCTICO */
+        /* MENÚ */
         #menu-tactico {
-            display: none; position: absolute; background: #001529; border: 2px solid #00d2ff;
-            padding: 10px; width: 200px; border-radius: 10px; z-index: 9999; box-shadow: 0 0 20px black;
+            display: none; position: absolute; background: rgba(0, 20, 40, 0.95); border: 2px solid #00d2ff;
+            padding: 10px; width: 180px; border-radius: 8px; z-index: 9999; box-shadow: 0 0 20px black;
         }
-        .btn { display: block; width: 100%; padding: 10px; margin: 5px 0; cursor: pointer; font-weight: bold; text-transform: uppercase; border: 1px solid #00d2ff; background: transparent; color: #00d2ff; }
+        .btn { display: block; width: 100%; padding: 8px; margin: 4px 0; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid #00d2ff; background: transparent; color: #00d2ff; transition: 0.2s; }
         .btn:hover { background: #00d2ff; color: black; }
-        .btn-atacar:hover { background: red; border-color: red; color: white; }
-        .btn-defender:hover { background: green; border-color: green; color: white; }
+        .btn-atacar:hover { background: #ff3333; border-color: #ff3333; color: white; }
+        .btn-defender:hover { background: #33ff33; border-color: #33ff33; color: black; }
     </style>
 </head>
 <body onclick="cerrarMenu()">
 
 <div id="espacio">
     
-    <div id="p1" class="planeta" style="top: 20%; left: 30%; background: radial-gradient(circle, #555, #222);" onclick="abrirMenu(event, 'Coruscant', 'p1')">
-        <span class="icono-bandera">🚩</span>
-        <div class="etiqueta">CORUSCANT</div>
+    <div id="p1" class="planeta republica" style="top: 45%; left: 48%; background: radial-gradient(circle, #4db8ff, #004466);" onclick="abrirMenu(event, 'Coruscant', 'p1')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Coruscant</div>
     </div>
 
-    <div id="p2" class="planeta" style="top: 50%; left: 60%; background: radial-gradient(circle, #f0ad4e, #8a6d3b);" onclick="abrirMenu(event, 'Tatooine', 'p2')">
-        <span class="icono-bandera">🚩</span>
-        <div class="etiqueta">TATOOINE</div>
+    <div id="p2" class="planeta republica" style="top: 75%; left: 70%; background: radial-gradient(circle, #aaddff, #336699);" onclick="abrirMenu(event, 'Kamino', 'p2')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Kamino</div>
     </div>
 
-    <div id="p3" class="planeta" style="top: 70%; left: 20%; background: radial-gradient(circle, #5cb85c, #2d5a2d);" onclick="abrirMenu(event, 'Endor', 'p3')">
-        <span class="icono-bandera">🚩</span>
-        <div class="etiqueta">ENDOR</div>
+    <div id="p3" class="planeta republica" style="top: 65%; left: 55%; background: radial-gradient(circle, #5cd65c, #004400);" onclick="abrirMenu(event, 'Naboo', 'p3')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Naboo</div>
+    </div>
+
+    <div id="p4" class="planeta republica" style="top: 30%; left: 40%; background: radial-gradient(circle, #888, #222);" onclick="abrirMenu(event, 'Anaxes', 'p4')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Anaxes</div>
+    </div>
+
+    <div id="p5" class="planeta republica" style="top: 55%; left: 30%; background: radial-gradient(circle, #00f2ff, #003344);" onclick="abrirMenu(event, 'Christophsis', 'p5')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Christophsis</div>
+    </div>
+
+    <div id="p6" class="planeta cis" style="top: 70%; left: 40%; background: radial-gradient(circle, #ff8c1a, #663300);" onclick="abrirMenu(event, 'Geonosis', 'p6')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Geonosis</div>
+    </div>
+
+    <div id="p7" class="planeta cis" style="top: 80%; left: 30%; background: radial-gradient(circle, #e6ccb3, #4d3319);" onclick="abrirMenu(event, 'Utapau', 'p7')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Utapau</div>
+    </div>
+
+    <div id="p8" class="planeta cis" style="top: 20%; left: 60%; background: radial-gradient(circle, #ffffff, #555);" onclick="abrirMenu(event, 'Mygeeto', 'p8')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Mygeeto</div>
+    </div>
+
+    <div id="p9" class="planeta cis" style="top: 40%; left: 75%; background: radial-gradient(circle, #ff66ff, #440044);" onclick="abrirMenu(event, 'Felucia', 'p9')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Felucia</div>
+    </div>
+
+    <div id="p10" class="planeta cis" style="top: 85%; left: 15%; background: radial-gradient(circle, #ff3300, #440000);" onclick="abrirMenu(event, 'Mustafar', 'p10')">
+        <span class="icono-bandera">🚩</span><div class="etiqueta">Mustafar</div>
     </div>
 
     <div id="menu-tactico" onclick="event.stopPropagation()">
-        <h3 id="txt-nombre" style="text-align:center; color:white; margin:5px; font-size:14px;">PLANETA</h3>
-        <button class="btn" onclick="ejecutar('C')">🚩 CONQUISTAR</button>
-        <button class="btn btn-atacar" onclick="ejecutar('A')">⚔️ ATACAR</button>
-        <button class="btn btn-defender" onclick="ejecutar('D')">🛡️ DEFENDER</button>
-    </div>
-</div>
-
-<script>
-    var menu = document.getElementById('menu-tactico');
-    var titulo = document.getElementById('txt-nombre');
-    var idActual = "";
-
-    function abrirMenu(e, nombre, id) {
-        e.stopPropagation();
-        idActual = id;
-        titulo.innerText = nombre.toUpperCase();
-        menu.style.display = 'block';
-        menu.style.left = e.clientX + "px";
-        menu.style.top = e.clientY + "px";
-    }
-
-    // 1. ESTA FUNCIÓN ENVÍA LA ORDEN A GMOD
-    function ejecutar(tipo) {
-        if(window.gmod && window.gmod.enviarOrden) {
-            gmod.enviarOrden(idActual, tipo);
-        }
-        cerrarMenu();
-    }
-
-    // 2. ESTA FUNCIÓN RECIBE LA ORDEN DE GMOD (Y DEL SERVIDOR)
-    function actualizarDesdeGmod(id, tipo) {
-        var p = document.getElementById(id);
-        if(!p) return;
-        var bandera = p.querySelector('.icono-bandera');
-
-        // Limpiar estados
-        p.classList.remove('rojo', 'verde', 'animar');
-        if(bandera) bandera.style.display = "none";
-
-        // Animación
-        setTimeout(function(){ p.classList.add('animar'); }, 1);
-
-        // Aplicar estado según lo que diga el servidor
-        if(tipo === 'C') {
-            if(bandera) bandera.style.display = "block";
-        } else if(tipo === 'A') {
-            p.classList.add('rojo');
-        } else if(tipo === 'D') {
-            p.classList.add('verde');
-        }
-    }
-
-    function cerrarMenu() { menu.style.display = 'none'; }
-</script>
-
-</body>
-</html>
+        <h3 id="txt-nombre" style="text-align:center; color:white; margin:5px; font-
